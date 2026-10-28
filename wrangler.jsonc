@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "inostudio-web",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  // Kept on for the deploy workflow's smoke test. The contact form only works
+  // on inostudio.lv: the reCAPTCHA key doesn't allow the workers.dev host.
+  "workers_dev": true,
+  // _site/ is assembled by the deploy workflow from the files it lists.
+  // The Worker runs first so it can redirect www to the apex and serve
+  // /api/contact; everything else is handed to the assets binding.
+  "assets": { "directory": "./_site", "binding": "ASSETS", "run_worker_first": true },
+  // No "routes": the inostudio.lv and www custom domains were attached once by
+  // hand (see ino-infra terraform/inostudio_web.tf); the deploy token can't
+  // manage domains.
+  "send_email": [{ "name": "EMAIL", "allowed_sender_addresses": ["web@inostudio.lv"] }],
+  "vars": {
+    "CONTACT_TO": "nauris@inostudio.lv",
+    "CONTACT_FROM": "web@inostudio.lv",
+    "RECAPTCHA_MIN_SCORE": "0.5",
+    "RECAPTCHA_HOSTNAMES": "inostudio.lv,www.inostudio.lv"
+  },
+  // Secret, set once and kept across deploys: RECAPTCHA_SECRET
+  "observability": { "enabled": true }
+}

@@ -543,6 +543,10 @@
       justify-content: flex-end;
     }
 
+    .field-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    .contact-cta:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
     .form-note {
       grid-column: 1 / -1;
       font-size: 14px;
@@ -834,6 +838,10 @@
           <label for="f-message" data-i18n="form.message">Pastāsti par savu projektu</label>
           <textarea id="f-message" name="message" required></textarea>
         </div>
+        <div class="field-hp" aria-hidden="true">
+          <label for="f-website">Website</label>
+          <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
         <div class="form-footer">
           <button type="submit" class="contact-cta" data-i18n="form.submit">Nosūtīt</button>
         </div>
@@ -911,7 +919,9 @@
         'form.phone': 'Phone (optional)',
         'form.message': 'Tell us about your project',
         'form.submit': 'Send',
-        'form.sent': 'Thanks! Your email app should open with the message ready to send.',
+        'form.sending': 'Sending…',
+        'form.sent': 'Thanks! Your message has been sent. We will get back to you soon.',
+        'form.error': 'Sorry, the message could not be sent. Please try again or email us at info@inostudio.lv.',
         'contact.email': 'Email',
         'contact.location': 'Location',
         'contact.company': 'Company',
@@ -921,7 +931,9 @@
       },
       lv: {
         'title': document.title,
-        'form.sent': 'Paldies! Jūsu e-pasta programmai vajadzētu atvērties ar sagatavotu ziņu.'
+        'form.sending': 'Sūta…',
+        'form.sent': 'Paldies! Jūsu ziņa ir nosūtīta. Drīzumā ar jums sazināsimies.',
+        'form.error': 'Diemžēl ziņu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz vai rakstiet uz info@inostudio.lv.'
       }
     };
 
@@ -957,14 +969,52 @@
     try { savedLang = localStorage.getItem('lang'); } catch (e) {}
     if (savedLang && i18n[savedLang]) setLang(savedLang);
 
-    // CONTACT FORM — opens the visitor's email app until a server-side handler is added
-    document.getElementById('contact-form').addEventListener('submit', e => {
+    // CONTACT FORM — posts to the Worker at /api/contact, guarded by reCAPTCHA v3
+    const RECAPTCHA_SITE_KEY = '6LfargQuAAAAAOKyDA8SDIHaMESq4t2ukEnVsXvF';
+    const recaptchaScript = document.createElement('script');
+    recaptchaScript.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    recaptchaScript.async = true;
+    document.head.appendChild(recaptchaScript);
+
+    function recaptchaToken() {
+      return new Promise((resolve, reject) => {
+        if (typeof grecaptcha === 'undefined') return reject(new Error('recaptcha not loaded'));
+        grecaptcha.ready(() => {
+          grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'contact' }).then(resolve, reject);
+        });
+      });
+    }
+
+    document.getElementById('contact-form').addEventListener('submit', async e => {
       e.preventDefault();
       const f = e.target;
-      const subject = `Ino Studio — ${f.name.value}`;
-      const body = `${f.message.value}\n\n${f.name.value}\n${f.email.value}${f.phone.value ? '\n' + f.phone.value : ''}`;
-      window.location.href = `mailto:info@inostudio.lv?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      document.getElementById('form-note').textContent = i18n[currentLang]['form.sent'];
+      const note = document.getElementById('form-note');
+      const button = f.querySelector('button[type="submit"]');
+      button.disabled = true;
+      note.textContent = i18n[currentLang]['form.sending'];
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: f.name.value,
+            email: f.email.value,
+            phone: f.phone.value,
+            message: f.message.value,
+            website: f.website.value,
+            lang: currentLang,
+            token: await recaptchaToken()
+          })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'failed');
+        f.reset();
+        note.textContent = i18n[currentLang]['form.sent'];
+      } catch (err) {
+        note.textContent = i18n[currentLang]['form.error'];
+      } finally {
+        button.disabled = false;
+      }
     });
   </script>
 
