@@ -418,7 +418,7 @@
     /* CLIENTS */
     .clients-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       border-top: 1px solid var(--line);
       border-left: 1px solid var(--line);
     }
@@ -427,8 +427,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 160px;
-      padding: 32px;
+      height: 140px;
+      padding: 24px;
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
       text-decoration: none;
@@ -437,8 +437,8 @@
     }
 
     .client img {
-      max-width: 75%;
-      max-height: 72px;
+      max-width: 80%;
+      max-height: 64px;
       width: auto;
       height: auto;
       display: block;
@@ -447,15 +447,34 @@
       transition: filter 0.3s, opacity 0.3s;
     }
 
-    /* text stand-in until a logo file is available */
-    .client-wordmark {
-      font-size: 22px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+    /* Optical size tweaks so heavy and thin logos read at a similar weight */
+    .client img.logo-sm { max-height: 44px; }
+    .client img.logo-wide { max-width: 92%; }
+
+    /* White logos made for dark backgrounds: show as dark silhouettes */
+    .client img.on-dark { filter: brightness(0); opacity: 0.45; }
+
+    /* Tile that fills the last row and invites new clients */
+    .client-cta {
+      grid-column: span 2;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px 32px;
+      background: var(--green-light);
+      color: var(--fg);
+    }
+    .client-cta strong { font-size: 18px; font-weight: 500; }
+    .client-cta span {
+      font-size: 13px;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0.8;
-      transition: color 0.3s, opacity 0.3s;
+      color: var(--gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: gap 0.2s;
     }
 
     .client::after {
@@ -470,8 +489,10 @@
 
     .client:hover { background: #fff; }
     .client:hover img { filter: grayscale(0); opacity: 1; }
-    .client:hover .client-wordmark { color: var(--fg); opacity: 1; }
+    .client:hover img.on-dark { filter: brightness(0); opacity: 0.9; }
     .client:hover::after { width: 100%; }
+    .client-cta:hover { background: var(--green); }
+    .client-cta:hover span { gap: 14px; }
 
     /* CONTACT */
     .contact-block {
@@ -619,8 +640,8 @@
       .stats-row { gap: 32px; }
       .services-grid { grid-template-columns: 1fr; }
       .clients-grid { grid-template-columns: repeat(2, 1fr); }
-      .client { height: 120px; padding: 20px; }
-      .client-wordmark { font-size: 17px; }
+      .client { height: 110px; padding: 18px; }
+      .client-cta { padding: 20px 24px; }
       .about-grid { grid-template-columns: 1fr; }
       .about-stat:nth-child(odd) { border-right: none; }
       .about-stat:nth-child(even) { padding-left: 0; }
@@ -717,11 +738,14 @@
     <p class="label" data-i18n="clients.label">Mums uzticas</p>
     <h2 class="section-title" data-i18n="clients.title">Klienti</h2>
     <div class="clients-grid">
-      <a class="client" href="https://salakafe.lv" target="_blank" rel="noopener">
-        <img src="clients/salakafe.png" alt="Sala konditoreja" loading="lazy" />
+      <a class="client" href="https://www.forvismazars.com" target="_blank" rel="noopener">
+        <img src="clients/forvismazars.svg" alt="Forvis Mazars" loading="lazy" />
       </a>
-      <a class="client" href="https://rag.lv" target="_blank" rel="noopener">
-        <img src="clients/rag.png" alt="Rīgas Angļu ģimnāzija" loading="lazy" />
+      <a class="client" href="https://ruterminal.lv" target="_blank" rel="noopener">
+        <img class="logo-wide" src="clients/ruterminal.png" alt="Rīgas Universālais Termināls" loading="lazy" />
+      </a>
+      <a class="client" href="https://latarh.lv" target="_blank" rel="noopener">
+        <img src="clients/latarh.svg" alt="Latvijas Arhitektu savienība" loading="lazy" />
       </a>
       <a class="client" href="https://www.pay-cross.com/" target="_blank" rel="noopener">
         <img src="clients/paycross.svg" alt="Paycross" loading="lazy" />
@@ -729,11 +753,36 @@
       <a class="client" href="https://piebalgas.lv" target="_blank" rel="noopener">
         <img src="clients/piebalgas.png" alt="Piebalgas" loading="lazy" />
       </a>
+      <a class="client" href="https://salakafe.lv" target="_blank" rel="noopener">
+        <img src="clients/salakafe.png" alt="Sala konditoreja" loading="lazy" />
+      </a>
+      <a class="client" href="https://taxlink.lv" target="_blank" rel="noopener">
+        <img class="logo-sm" src="clients/taxlink.svg" alt="Taxlink" loading="lazy" />
+      </a>
+      <a class="client" href="https://rag.lv" target="_blank" rel="noopener">
+        <img src="clients/rag.png" alt="Rīgas Angļu ģimnāzija" loading="lazy" />
+      </a>
+      <a class="client" href="https://best4sport.tv" target="_blank" rel="noopener">
+        <img class="on-dark" src="clients/best4sport.png" alt="Best4Sport" loading="lazy" />
+      </a>
+      <a class="client" href="https://marupeslogi.lv" target="_blank" rel="noopener">
+        <img class="logo-sm" src="clients/marupeslogi.svg" alt="Mārupes logi" loading="lazy" />
+      </a>
       <a class="client" href="https://llka.lv" target="_blank" rel="noopener">
         <img src="clients/llka.png" alt="LLKA" loading="lazy" />
       </a>
       <a class="client" href="https://bmparts.lv" target="_blank" rel="noopener">
         <img src="clients/bmparts.png" alt="BM Parts" loading="lazy" />
+      </a>
+      <a class="client" href="https://linia.lv" target="_blank" rel="noopener">
+        <img class="on-dark" src="clients/linia.png" alt="Linia" loading="lazy" />
+      </a>
+      <a class="client" href="https://elegants.lv" target="_blank" rel="noopener">
+        <img class="on-dark" src="clients/elegants.png" alt="Elegants" loading="lazy" />
+      </a>
+      <a class="client client-cta" href="#contact">
+        <strong data-i18n="clients.cta">Jūsu logo varētu būt šeit</strong>
+        <span><span data-i18n="clients.ctaLink">Sāksim projektu</span> →</span>
       </a>
     </div>
   </section>
@@ -846,6 +895,8 @@
         's5.text': 'Get found on Google: technical SEO, content structure and speed improvements that bring the right visitors to your site.',
         'clients.label': 'Trusted by',
         'clients.title': 'Clients',
+        'clients.cta': 'Your logo could be here',
+        'clients.ctaLink': 'Start a project',
         'about.label': 'By the numbers',
         'about.title': '15+ years of building the web',
         'about.projects': 'Completed projects',
