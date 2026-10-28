@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ino Studio — Web Design & Development</title>
+  <title>Ino Studio — Mājas lapu izstrāde un web dizains</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,6 +19,8 @@
       --purple-light: #ece8f5;
       --gray-dark: #555;
       --gray-mid: #888;
+      --band-light: #f1f1ee;
+      --line-dark: #2e2e2e;
     }
 
     html { scroll-behavior: smooth; }
@@ -29,6 +31,7 @@
       color: var(--fg);
       font-size: 17px;
       line-height: 1.6;
+      overflow-x: clip;
     }
 
     /* NAV */
@@ -64,6 +67,12 @@
       display: block;
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
     .nav-links {
       display: flex;
       gap: 36px;
@@ -81,17 +90,47 @@
     .nav-links a:hover { color: var(--fg); }
     .nav-links a.active { color: var(--fg); }
 
+    /* LANGUAGE SWITCH */
+    .lang-switch {
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .lang-switch button {
+      background: none;
+      border: none;
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lang-switch button:hover { color: var(--fg); }
+    .lang-switch button.active { background: var(--green); color: var(--fg); font-weight: 600; }
+
     /* SECTIONS */
     section {
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 120px 48px 80px;
+      padding: 112px 48px;
       max-width: 900px;
       margin: 0 auto;
       width: 100%;
     }
+
+    /* Full-width background bands behind the centred content */
+    .band {
+      background: var(--band-bg);
+      box-shadow: 0 0 0 100vmax var(--band-bg);
+      clip-path: inset(0 -100vmax);
+    }
+    .band-light { --band-bg: var(--band-light); }
+    .band-dark  { --band-bg: var(--fg); color: #fff; }
 
     .label {
       font-size: 12px;
@@ -122,14 +161,72 @@
       padding: 120px 48px 80px;
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
     }
 
+    #hero > *:not(.hero-geo) { position: relative; z-index: 1; }
+
     .hero-title {
-      font-size: clamp(42px, 6vw, 72px);
+      font-size: clamp(42px, 5.6vw, 68px);
       font-weight: 300;
       line-height: 1.15;
       letter-spacing: -0.02em;
       margin-bottom: 28px;
+      max-width: 640px;
+    }
+
+    /* Hero composition built from the logo: the "i" (green dot + stem) and the "o" (purple ring) */
+    .hero-geo {
+      --u: 1.9px;
+      position: absolute;
+      right: -190px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: calc(210 * var(--u));
+      height: calc(210 * var(--u));
+      pointer-events: none;
+    }
+
+    .hero-geo .geo-grid {
+      position: absolute;
+      right: 0; top: 0;
+      width: calc(120 * var(--u));
+      height: calc(120 * var(--u));
+      background-image: radial-gradient(var(--line) calc(1.3 * var(--u)), transparent calc(1.3 * var(--u)));
+      background-size: calc(11 * var(--u)) calc(11 * var(--u));
+    }
+
+    .hero-geo .geo-ring {
+      position: absolute;
+      right: calc(18 * var(--u)); bottom: 0;
+      width: calc(150 * var(--u));
+      height: calc(150 * var(--u));
+      border-radius: 50%;
+      border: calc(22 * var(--u)) solid var(--purple);
+    }
+
+    .hero-geo .geo-stem {
+      position: absolute;
+      left: calc(22 * var(--u)); top: calc(62 * var(--u));
+      width: calc(22 * var(--u));
+      height: calc(110 * var(--u));
+      background: var(--fg);
+    }
+
+    .hero-geo .geo-dot {
+      position: absolute;
+      left: calc(10 * var(--u)); top: 0;
+      width: calc(46 * var(--u));
+      height: calc(46 * var(--u));
+      border-radius: 50%;
+      background: var(--green);
+      animation: geo-float 5s ease-in-out infinite;
+    }
+
+    @keyframes geo-float { 50% { transform: translateY(calc(-9 * var(--u))); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-geo .geo-dot { animation: none; }
     }
 
     .hero-title strong {
@@ -204,26 +301,51 @@
 
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 0;
-      border-top: 1px solid var(--line);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 48px 40px;
     }
 
     .service-item {
-      padding: 36px 0;
-      border-bottom: 1px solid var(--line);
-      padding-right: 40px;
-      transition: background 0.2s, padding-left 0.2s;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
     }
 
-    .service-item:hover { background: var(--green-light); padding-left: 12px; }
+    .service-img {
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      margin-bottom: 24px;
+      background: var(--line);
+    }
+
+    .service-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(100%);
+      transition: filter 0.4s, transform 0.4s;
+    }
+
+    .service-item:hover .service-img img { filter: grayscale(0); transform: scale(1.03); }
 
     .service-item h3 {
       font-size: 17px;
       font-weight: 500;
       margin-bottom: 10px;
       color: var(--gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
+    .service-item h3::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--line);
+      transition: background 0.2s;
+    }
+    .service-item:hover h3::before { background: var(--green); }
 
     .service-item p {
       font-size: 15px;
@@ -231,7 +353,31 @@
       line-height: 1.5;
     }
 
-    /* ABOUT / STATS SECTION */
+    /* Highlighted full-width service */
+    .service-wide {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      background: var(--green-light);
+      border-top: 2px solid var(--green);
+      padding: 24px;
+    }
+
+    .service-wide .service-img { margin-bottom: 0; }
+    .service-wide .service-img img { filter: none; }
+    .service-wide h3 { color: var(--fg); font-size: 20px; }
+    .service-wide h3::before { background: var(--green); }
+    .service-wide p { color: var(--gray-dark); }
+
+    /* ABOUT / STATS SECTION — dark band */
+    #about .label { color: #9a9a9a; }
+    #about .about-grid,
+    #about .about-stat { border-color: var(--line-dark); }
+    #about .about-number { color: #fff; }
+    #about .about-desc { color: #9a9a9a; }
+
     .about-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -246,6 +392,7 @@
     }
 
     .about-stat:nth-child(odd) { border-right: 1px solid var(--line); }
+    .about-stat:nth-child(even) { padding-left: 40px; }
 
     .about-number {
       font-size: clamp(36px, 5vw, 52px);
@@ -268,62 +415,118 @@
       letter-spacing: 0.07em;
     }
 
-    /* PROJECTS */
-    .projects-list {
+    /* CLIENTS */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
     }
 
-    .project-item {
+    .client {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 28px 0;
+      justify-content: center;
+      height: 160px;
+      padding: 32px;
+      border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      gap: 24px;
-      transition: padding-left 0.2s;
+      text-decoration: none;
+      position: relative;
+      transition: background 0.2s;
     }
 
-    .project-item:hover { padding-left: 12px; }
-    .project-item:hover .project-name { color: var(--purple); }
-    .project-item:hover .project-tag { background: var(--green); color: var(--fg); }
-
-    .project-name {
-      font-size: 20px;
-      font-weight: 400;
-      transition: color 0.2s;
+    .client img {
+      max-width: 75%;
+      max-height: 72px;
+      width: auto;
+      height: auto;
+      display: block;
+      filter: grayscale(100%);
+      opacity: 0.55;
+      transition: filter 0.3s, opacity 0.3s;
     }
 
-    .project-desc {
-      font-size: 14px;
-      color: var(--muted);
-      text-align: right;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .project-tag {
-      font-size: 11px;
-      letter-spacing: 0.07em;
+    /* text stand-in until a logo file is available */
+    .client-wordmark {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      background: var(--gray-dark);
-      color: var(--bg);
-      padding: 3px 10px;
-      border-radius: 20px;
-      transition: background 0.2s, color 0.2s;
+      color: var(--muted);
+      opacity: 0.8;
+      transition: color 0.3s, opacity 0.3s;
     }
+
+    .client::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -1px;
+      width: 0;
+      height: 2px;
+      background: var(--green);
+      transition: width 0.3s;
+    }
+
+    .client:hover { background: #fff; }
+    .client:hover img { filter: grayscale(0); opacity: 1; }
+    .client:hover .client-wordmark { color: var(--fg); opacity: 1; }
+    .client:hover::after { width: 100%; }
 
     /* CONTACT */
     .contact-block {
       margin-top: 8px;
     }
 
-    .contact-block p {
+    .contact-block > p {
       font-size: 15px;
       color: var(--muted);
       max-width: 420px;
       margin-bottom: 40px;
+    }
+
+    .contact-form {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px 32px;
+      margin-bottom: 64px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input, .field textarea {
+      font: inherit;
+      font-size: 16px;
+      color: var(--fg);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 8px 0;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field textarea { resize: vertical; min-height: 110px; }
+    .field input:focus, .field textarea:focus { border-color: var(--green); }
+
+    .form-footer {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .form-note {
+      grid-column: 1 / -1;
+      font-size: 14px;
+      color: var(--purple);
+      min-height: 1em;
     }
 
     .contact-links {
@@ -341,6 +544,7 @@
       padding: 12px 0;
       border-bottom: 1px solid var(--line);
       font-size: 15px;
+      gap: 16px;
     }
 
     .contact-row span { color: var(--muted); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -351,19 +555,22 @@
       transition: color 0.2s;
       font-weight: 500;
       font-style: normal;
+      text-align: right;
     }
     .contact-row a:hover { color: var(--green); }
 
     .contact-cta {
       display: inline-block;
-      margin-top: 40px;
       background: var(--green);
       color: var(--fg);
+      font: inherit;
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       text-decoration: none;
+      border: none;
+      cursor: pointer;
       padding: 14px 32px;
       transition: background 0.2s, transform 0.15s;
     }
@@ -385,14 +592,41 @@
 
     footer a:hover { color: var(--green); }
 
+    /* Narrower screens: the composition moves above the headline */
+    @media (max-width: 1000px) {
+      .hero-geo {
+        --u: 0.85px;
+        position: relative;
+        right: auto; top: auto;
+        transform: none;
+        order: -1;
+        align-self: flex-end;
+        margin-bottom: 8px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav-links { display: none; }
+      .service-wide { grid-template-columns: 1fr; gap: 20px; }
+    }
+
     @media (max-width: 600px) {
       nav { padding: 20px 24px; }
-      #hero, section { padding: 100px 24px 60px; }
+      .nav-logo { font-size: 15px; }
+      #hero { padding: 100px 24px 60px; }
+      section { padding: 72px 24px; scroll-margin-top: 24px; }
+      .service-wide { padding: 16px; }
       .stats-row { gap: 32px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .clients-grid { grid-template-columns: repeat(2, 1fr); }
+      .client { height: 120px; padding: 20px; }
+      .client-wordmark { font-size: 17px; }
       .about-grid { grid-template-columns: 1fr; }
       .about-stat:nth-child(odd) { border-right: none; }
-      .project-item { flex-direction: column; gap: 4px; }
-      .project-desc { text-align: left; }
+      .about-stat:nth-child(even) { padding-left: 0; }
+      .contact-form { grid-template-columns: 1fr; }
+      .contact-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .contact-row a, .contact-row address { text-align: left; }
       footer { padding: 24px; }
     }
   </style>
@@ -401,115 +635,285 @@
 
   <nav id="navbar">
     <a class="nav-logo" href="#hero"><img src="logo.png" alt="Ino Studio" />Ino Studio</a>
-    <ul class="nav-links">
-      <li><a href="#services">Services</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#services" data-i18n="nav.services">Pakalpojumi</a></li>
+        <li><a href="#clients" data-i18n="nav.clients">Klienti</a></li>
+        <li><a href="#about" data-i18n="nav.about">Par mums</a></li>
+        <li><a href="#contact" data-i18n="nav.contact">Kontakti</a></li>
+      </ul>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="lv" class="active">LV</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
   </nav>
 
   <!-- HERO -->
   <div id="hero">
-    <p class="label">Web Design &amp; Development Studio</p>
-    <h1 class="hero-title">We create<br><strong>digital experiences</strong><br>that convert.</h1>
-    <p class="hero-sub">Professional web design, development, and CRM solutions — crafted with precision for businesses that want to grow.</p>
+    <div class="hero-geo" aria-hidden="true">
+      <div class="geo-grid"></div>
+      <div class="geo-ring"></div>
+      <div class="geo-stem"></div>
+      <div class="geo-dot"></div>
+    </div>
+    <p class="label" data-i18n="hero.label">Web dizaina un izstrādes studija</p>
+    <h1 class="hero-title" data-i18n="hero.title">Radām<br><strong>digitālo pieredzi</strong>,<br>kas strādā.</h1>
+    <p class="hero-sub" data-i18n="hero.sub">Profesionāls web dizains, izstrāde un CRM risinājumi — rūpīgi veidoti uzņēmumiem, kas vēlas augt.</p>
     <div class="stats-row">
       <div class="stat">
         <div class="stat-number">140<span>+</span></div>
-        <div class="stat-label">Projects</div>
+        <div class="stat-label" data-i18n="stat.projects">Projekti</div>
       </div>
       <div class="stat">
         <div class="stat-number">15<span>+</span></div>
-        <div class="stat-label">Years</div>
+        <div class="stat-label" data-i18n="stat.years">Gadi</div>
       </div>
       <div class="stat">
         <div class="stat-number">250k<span>+</span></div>
-        <div class="stat-label">Lines of code</div>
+        <div class="stat-label" data-i18n="stat.lines">Koda rindas</div>
       </div>
     </div>
-    <p class="since">Est. 2011 · Rīga, Latvia</p>
+    <p class="since" data-i18n="hero.since">Kopš 2011 · Rīga, Latvija</p>
   </div>
 
   <!-- SERVICES -->
-  <section id="services">
-    <p class="label">What we do</p>
-    <h2 class="section-title">Services</h2>
+  <section id="services" class="band band-light">
+    <p class="label" data-i18n="services.label">Ko mēs darām</p>
+    <h2 class="section-title" data-i18n="services.title">Pakalpojumi</h2>
     <div class="services-grid">
       <div class="service-item">
-        <h3>Web Design &amp; UI/UX</h3>
-        <p>Visually compelling, user-centered interfaces designed to engage visitors and drive results.</p>
+        <div class="service-img"><img src="images/service-design.jpg" alt="" loading="lazy" /></div>
+        <h3 data-i18n="s1.title">Web dizains un UI/UX</h3>
+        <p data-i18n="s1.text">Vizuāli pievilcīgas, lietotājam draudzīgas saskarnes, kas piesaista apmeklētājus un sniedz rezultātus.</p>
       </div>
       <div class="service-item">
-        <h3>Web Development</h3>
-        <p>Custom web applications and websites built with modern technologies, focused on performance and reliability.</p>
+        <div class="service-img"><img src="images/service-development.jpg" alt="" loading="lazy" /></div>
+        <h3 data-i18n="s2.title">Web izstrāde</h3>
+        <p data-i18n="s2.text">Pielāgotas web lietotnes un mājas lapas, veidotas ar modernām tehnoloģijām, ar uzsvaru uz ātrdarbību un uzticamību.</p>
       </div>
       <div class="service-item">
-        <h3>CRM Development</h3>
-        <p>Tailored CRM systems that streamline your workflows, automate processes, and centralize your business data.</p>
+        <div class="service-img"><img src="images/service-crm.jpg" alt="" loading="lazy" /></div>
+        <h3 data-i18n="s3.title">CRM izstrāde</h3>
+        <p data-i18n="s3.text">Pielāgotas CRM sistēmas, kas sakārto darba plūsmas, automatizē procesus un apvieno uzņēmuma datus vienuviet.</p>
       </div>
       <div class="service-item">
-        <h3>Support &amp; Maintenance</h3>
-        <p>Ongoing technical support, updates, and optimization to keep your digital products running smoothly.</p>
+        <div class="service-img"><img src="images/service-support.jpg" alt="" loading="lazy" /></div>
+        <h3 data-i18n="s4.title">Atbalsts un uzturēšana</h3>
+        <p data-i18n="s4.text">Pastāvīgs tehniskais atbalsts, atjauninājumi un optimizācija, lai jūsu digitālie produkti darbotos nevainojami.</p>
+      </div>
+      <div class="service-item service-wide">
+        <div class="service-img"><img src="images/service-seo.jpg" alt="" loading="lazy" /></div>
+        <div>
+          <h3 data-i18n="s5.title">SEO optimizācija</h3>
+          <p data-i18n="s5.text">Palīdzam jūs atrast Google meklētājā: tehniskā SEO, satura struktūra un ātrdarbības uzlabojumi, kas jūsu lapai atved īstos apmeklētājus.</p>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- CLIENTS -->
+  <section id="clients">
+    <p class="label" data-i18n="clients.label">Mums uzticas</p>
+    <h2 class="section-title" data-i18n="clients.title">Klienti</h2>
+    <div class="clients-grid">
+      <a class="client" href="https://salakafe.lv" target="_blank" rel="noopener">
+        <img src="clients/salakafe.png" alt="Sala konditoreja" loading="lazy" />
+      </a>
+      <a class="client" href="https://rag.lv" target="_blank" rel="noopener">
+        <img src="clients/rag.png" alt="Rīgas Angļu ģimnāzija" loading="lazy" />
+      </a>
+      <a class="client" href="https://www.pay-cross.com/" target="_blank" rel="noopener">
+        <img src="clients/paycross.svg" alt="Paycross" loading="lazy" />
+      </a>
+      <a class="client" href="https://piebalgas.lv" target="_blank" rel="noopener">
+        <img src="clients/piebalgas.png" alt="Piebalgas" loading="lazy" />
+      </a>
+      <a class="client" href="https://llka.lv" target="_blank" rel="noopener">
+        <img src="clients/llka.png" alt="LLKA" loading="lazy" />
+      </a>
+      <a class="client" href="https://bmparts.lv" target="_blank" rel="noopener">
+        <img src="clients/bmparts.png" alt="BM Parts" loading="lazy" />
+      </a>
+    </div>
+  </section>
+
   <!-- ABOUT -->
-  <section id="about">
-    <p class="label">By the numbers</p>
-    <h2 class="section-title">15+ years of building the web</h2>
+  <section id="about" class="band band-dark">
+    <p class="label" data-i18n="about.label">Skaitļos</p>
+    <h2 class="section-title" data-i18n="about.title">15+ gadi web izstrādē</h2>
     <div class="about-grid">
       <div class="about-stat">
         <div class="about-number">140<em>+</em></div>
-        <div class="about-desc">Completed projects</div>
+        <div class="about-desc" data-i18n="about.projects">Realizēti projekti</div>
       </div>
       <div class="about-stat">
         <div class="about-number">15<em>+</em></div>
-        <div class="about-desc">Years in the industry</div>
+        <div class="about-desc" data-i18n="about.years">Gadi industrijā</div>
       </div>
       <div class="about-stat">
         <div class="about-number">250k<em>+</em></div>
-        <div class="about-desc">Lines of code written</div>
+        <div class="about-desc" data-i18n="about.lines">Uzrakstītas koda rindas</div>
       </div>
       <div class="about-stat">
         <div class="about-number">10k<em>+</em></div>
-        <div class="about-desc">Cups of coffee</div>
+        <div class="about-desc" data-i18n="about.coffee">Izdzertas kafijas tases</div>
       </div>
     </div>
   </section>
 
   <!-- CONTACT -->
   <section id="contact">
-    <p class="label">Get in touch</p>
-    <h2 class="section-title">Let's work together</h2>
+    <p class="label" data-i18n="contact.label">Sazinies ar mums</p>
+    <h2 class="section-title" data-i18n="contact.title">Strādāsim kopā</h2>
     <div class="contact-block">
-      <p>Have a project in mind? We'd love to hear about it. Reach out and let's talk about how we can help.</p>
-      <a href="mailto:info@inostudio.lv" class="contact-cta">Start a project</a>
+      <p data-i18n="contact.text">Ir ideja projektam? Mēs labprāt par to uzzinātu. Raksti mums, un parunāsim, kā varam palīdzēt.</p>
+      <form class="contact-form" id="contact-form">
+        <div class="field">
+          <label for="f-name" data-i18n="form.name">Vārds</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="f-email" data-i18n="form.email">E-pasts</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field full">
+          <label for="f-phone" data-i18n="form.phone">Tālrunis (neobligāti)</label>
+          <input id="f-phone" name="phone" type="tel" autocomplete="tel" />
+        </div>
+        <div class="field full">
+          <label for="f-message" data-i18n="form.message">Pastāsti par savu projektu</label>
+          <textarea id="f-message" name="message" required></textarea>
+        </div>
+        <div class="form-footer">
+          <button type="submit" class="contact-cta" data-i18n="form.submit">Nosūtīt</button>
+        </div>
+        <p class="form-note" id="form-note" aria-live="polite"></p>
+      </form>
       <div class="contact-links">
         <div class="contact-row">
-          <span>Email</span>
+          <span data-i18n="contact.email">E-pasts</span>
           <a href="mailto:info@inostudio.lv">info@inostudio.lv</a>
         </div>
         <div class="contact-row">
-          <span>Location</span>
+          <span data-i18n="contact.location">Adrese</span>
           <address>Talsu iela 22 — 1, Rīga, LV-1002</address>
         </div>
         <div class="contact-row">
-          <span>Company</span>
-          <address>SIA Ino Studio · Reg. No. 50103373261</address>
+          <span data-i18n="contact.company">Uzņēmums</span>
+          <address>SIA Ino Studio · <span data-i18n="contact.reg">Reģ. Nr.</span> 50103373261</address>
         </div>
       </div>
     </div>
   </section>
 
   <footer>
-    &copy; 2026 <a href="#hero">Ino Studio</a>. All rights reserved. · Rīga, Latvia
+    &copy; 2026 <a href="#hero">Ino Studio</a>. <span data-i18n="footer.rights">Visas tiesības aizsargātas.</span> · <span data-i18n="footer.city">Rīga, Latvija</span>
   </footer>
 
   <script>
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // TRANSLATIONS — Latvian is in the markup, English is swapped in
+    const i18n = {
+      en: {
+        'title': 'Ino Studio — Web Design & Development',
+        'nav.services': 'Services',
+        'nav.clients': 'Clients',
+        'nav.about': 'About',
+        'nav.contact': 'Contact',
+        'hero.label': 'Web Design &amp; Development Studio',
+        'hero.title': 'We create<br><strong>digital experiences</strong><br>that convert.',
+        'hero.sub': 'Professional web design, development, and CRM solutions — crafted with precision for businesses that want to grow.',
+        'hero.since': 'Est. 2011 · Rīga, Latvia',
+        'stat.projects': 'Projects',
+        'stat.years': 'Years',
+        'stat.lines': 'Lines of code',
+        'services.label': 'What we do',
+        'services.title': 'Services',
+        's1.title': 'Web Design &amp; UI/UX',
+        's1.text': 'Visually compelling, user-centered interfaces designed to engage visitors and drive results.',
+        's2.title': 'Web Development',
+        's2.text': 'Custom web applications and websites built with modern technologies, focused on performance and reliability.',
+        's3.title': 'CRM Development',
+        's3.text': 'Tailored CRM systems that streamline your workflows, automate processes, and centralize your business data.',
+        's4.title': 'Support &amp; Maintenance',
+        's4.text': 'Ongoing technical support, updates, and optimization to keep your digital products running smoothly.',
+        's5.title': 'SEO Optimisation',
+        's5.text': 'Get found on Google: technical SEO, content structure and speed improvements that bring the right visitors to your site.',
+        'clients.label': 'Trusted by',
+        'clients.title': 'Clients',
+        'about.label': 'By the numbers',
+        'about.title': '15+ years of building the web',
+        'about.projects': 'Completed projects',
+        'about.years': 'Years in the industry',
+        'about.lines': 'Lines of code written',
+        'about.coffee': 'Cups of coffee',
+        'contact.label': 'Get in touch',
+        'contact.title': 'Let\'s work together',
+        'contact.text': 'Have a project in mind? We\'d love to hear about it. Reach out and let\'s talk about how we can help.',
+        'form.name': 'Name',
+        'form.email': 'Email',
+        'form.phone': 'Phone (optional)',
+        'form.message': 'Tell us about your project',
+        'form.submit': 'Send',
+        'form.sent': 'Thanks! Your email app should open with the message ready to send.',
+        'contact.email': 'Email',
+        'contact.location': 'Location',
+        'contact.company': 'Company',
+        'contact.reg': 'Reg. No.',
+        'footer.rights': 'All rights reserved.',
+        'footer.city': 'Rīga, Latvia'
+      },
+      lv: {
+        'title': document.title,
+        'form.sent': 'Paldies! Jūsu e-pasta programmai vajadzētu atvērties ar sagatavotu ziņu.'
+      }
+    };
+
+    // Capture the Latvian markup text so we can switch back to it
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (!(key in i18n.lv)) i18n.lv[key] = el.innerHTML;
+    });
+
+    let currentLang = 'lv';
+
+    function setLang(lang) {
+      currentLang = lang;
+      const dict = i18n[lang];
+      document.documentElement.lang = lang;
+      document.title = dict.title;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const value = dict[el.dataset.i18n];
+        if (value !== undefined) el.innerHTML = value;
+      });
+      document.querySelectorAll('.lang-switch button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      document.getElementById('form-note').textContent = '';
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+    }
+
+    document.querySelectorAll('.lang-switch button').forEach(btn => {
+      btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    });
+
+    let savedLang = null;
+    try { savedLang = localStorage.getItem('lang'); } catch (e) {}
+    if (savedLang && i18n[savedLang]) setLang(savedLang);
+
+    // CONTACT FORM — opens the visitor's email app until a server-side handler is added
+    document.getElementById('contact-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      const subject = `Ino Studio — ${f.name.value}`;
+      const body = `${f.message.value}\n\n${f.name.value}\n${f.email.value}${f.phone.value ? '\n' + f.phone.value : ''}`;
+      window.location.href = `mailto:info@inostudio.lv?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      document.getElementById('form-note').textContent = i18n[currentLang]['form.sent'];
     });
   </script>
 
